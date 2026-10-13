@@ -1,3 +1,14 @@
+# Personal planning/notes — not part of the submitted project
+ke-hoach/
+docs/
+
+# OS / IDE
+.DS_Store
+.idea
+
+# Git worktrees
+.worktrees/
+
 # Logs
 logs
 *.log
