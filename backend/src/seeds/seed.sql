@@ -1,0 +1,1 @@
+-- Placeholder: seed data thật sẽ viết ở Giai đoạn 3 (6-8 sách đủ 3 trạng thái)
