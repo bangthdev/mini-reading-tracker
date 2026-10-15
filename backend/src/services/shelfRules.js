@@ -129,7 +129,6 @@ function timestampsFor(book, nextStatus) {
     return { finished_at: now }
   }
 
-  // want_to_read: coi như chưa từng đọc, xoá cả hai mốc
   return { started_at: null, finished_at: null }
 }
 
