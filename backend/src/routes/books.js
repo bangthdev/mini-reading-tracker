@@ -5,6 +5,7 @@ const pool = require("../db/pool");
 
 const router = express.Router();
 
+// GET /api/books/search?q=&page= — tìm sách, gắn cờ inShelf cho từng kết quả
 router.get("/search", async (req, res, next) => {
   try {
     const q = String(req.query.q || "").trim();
@@ -67,6 +68,7 @@ function normaliseDescription(description) {
   return description.value ?? null;
 }
 
+// GET /api/books/:workId — chi tiết sách cho Màn 2 (đi theo redirect, lấy tên tác giả)
 router.get("/:workId", async (req, res, next) => {
   try {
     const workId = String(req.params.workId || "").trim();
