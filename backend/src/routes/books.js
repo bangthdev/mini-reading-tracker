@@ -75,6 +75,13 @@ function normaliseDescription(description) {
   return description.value ?? null;
 }
 
+// Endpoint chi tiết trả first_publish_date là chữ tự do ("January 1938"),
+// trong khi endpoint tìm kiếm trả số và cột shelf_books là SMALLINT.
+function nam(firstPublishDate) {
+  const khop = String(firstPublishDate ?? "").match(/\d{4}/);
+  return khop ? Number(khop[0]) : null;
+}
+
 // GET /api/books/:workId — chi tiết sách cho Màn 2 (đi theo redirect, lấy tên tác giả)
 router.get("/:workId", async (req, res, next) => {
   try {
@@ -111,7 +118,7 @@ router.get("/:workId", async (req, res, next) => {
       description: normaliseDescription(work.description),
       coverId: work.covers?.[0] ?? null,
       subjects: work.subjects || [],
-      firstPublishYear: work.first_publish_date ?? null,
+      firstPublishYear: nam(work.first_publish_date),
     });
   } catch (err) {
     next(err);
