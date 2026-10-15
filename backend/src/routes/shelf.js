@@ -1,6 +1,7 @@
 const express = require("express");
 const AppError = require("../errors/AppError");
 const pool = require("../db/pool");
+const { applyChanges } = require("../services/shelfRules");
 
 const router = express.Router();
 
@@ -141,6 +142,46 @@ router.delete("/:id", async (req, res, next) => {
     }
 
     res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PATCH /api/shelf/:id — cập nhật tiến độ, trạng thái, đánh giá, ghi chú
+router.patch("/:id", async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) {
+      throw new AppError(400, "VALIDATION_ERROR", "Dữ liệu không hợp lệ", [
+        { field: "id", message: "id phải là số nguyên dương" },
+      ]);
+    }
+
+    const [rows] = await pool.query("SELECT * FROM shelf_books WHERE id = ?", [
+      id,
+    ]);
+    if (rows.length === 0) {
+      throw new AppError(404, "NO_BOOK", "Không tìm thấy sách trong tủ");
+    }
+
+    const { fields, errors } = applyChanges(rows[0], req.body ?? {});
+    if (errors.length > 0) {
+      throw new AppError(400, "VALIDATION_ERROR", "Dữ liệu không hợp lệ", errors);
+    }
+
+    const columns = Object.keys(fields);
+    if (columns.length > 0) {
+      await pool.query(
+        `UPDATE shelf_books SET ${columns.map((c) => `${c} = ?`).join(", ")} WHERE id = ?`,
+        [...columns.map((c) => fields[c]), id],
+      );
+    }
+
+    const [updated] = await pool.query(
+      "SELECT * FROM shelf_books WHERE id = ?",
+      [id],
+    );
+    res.json(updated[0]);
   } catch (err) {
     next(err);
   }
