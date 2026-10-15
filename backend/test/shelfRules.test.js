@@ -162,6 +162,22 @@ test('chuyển read về want_to_read thì xoá cả hai mốc', () => {
   assert.strictEqual(f.finished_at, null)
 })
 
+test('chuyển read về want_to_read thì số trang về 0, giữ nguyên đánh giá', () => {
+  const f = fieldsOf(applyChanges(book({ status: 'read', current_page: 310, total_pages: 310, rating: 5, started_at: new Date('2026-09-01'), finished_at: new Date() }), { status: 'want_to_read' }))
+  assert.strictEqual(f.current_page, 0, 'sách chưa đọc không được hiện 100%')
+  assert.ok(!('rating' in f), 'đánh giá là nhận xét về sách, không đi theo tiến độ')
+})
+
+test('chuyển reading về want_to_read cũng đưa số trang về 0', () => {
+  const f = fieldsOf(applyChanges(book({ status: 'reading', current_page: 120, started_at: new Date('2026-09-01') }), { status: 'want_to_read' }))
+  assert.strictEqual(f.current_page, 0)
+})
+
+test('từ chối chuyển về want_to_read kèm số trang khác 0', () => {
+  const r = applyChanges(book({ status: 'reading', current_page: 120 }), { status: 'want_to_read', currentPage: 50 })
+  assert.deepStrictEqual(errorFields(r), ['currentPage'])
+})
+
 // ───────────────────────── Quy tắc 10: đánh dấu read thì số trang nhảy lên đủ
 
 test('đánh dấu read khi mới đọc dở thì current_page nhảy lên bằng total_pages', () => {

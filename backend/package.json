@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node --env-file=.env src/server.js",
+    "dev": "node --watch --env-file=.env src/server.js",
     "test": "node --test",
     "db:migrate": "node --env-file=.env scripts/migrate.js",
     "db:seed": "node --env-file=.env scripts/seed.js",

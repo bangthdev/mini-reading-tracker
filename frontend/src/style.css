@@ -1,296 +1,251 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* Giấy và mặt bàn */
+  --kraft: #cdb88e;
+  --kraft-dark: #b89a69;
+  --paper: #f6efd9;
+  --paper-dark: #efe6cb;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* Dòng kẻ vở và lề đỏ */
+  --rule: #b9cbe0;
+  --margin-line: #d8938f;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Mực bút bi */
+  --ink: #2d3f66;
+  --ink-soft: #5a6a94;
+  --ink-faint: #8891ab;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  /* Giấy nhớ */
+  --sticky-yellow: #f5da84;
+  --sticky-yellow-dark: #e0c35e;
+  --sticky-pink: #f2b6c4;
+  --sticky-pink-dark: #df93a6;
+  --sticky-mint: #aedcc1;
+  --sticky-mint-dark: #86c3a3;
+
+  /* Băng keo giấy */
+  --tape-rose: #dba2a0;
+  --tape-sage: #9fbfa2;
+
+  /* Bút highlight — dùng cho thanh tiến độ */
+  --highlighter: #d7e36b;
+  --highlighter-edge: #c3d24a;
+
+  /* Mực đỏ — xoá, cảnh báo */
+  --brick: #a24e3d;
+  --brick-dark: #8a3f30;
+
+  --shadow-paper: 0 1px 2px rgba(60, 45, 20, 0.18), 0 6px 14px rgba(60, 45, 20, 0.16);
+  --shadow-lift: 0 3px 6px rgba(60, 45, 20, 0.22), 0 16px 28px rgba(60, 45, 20, 0.26);
+
+  --sans: "Be Vietnam Pro", system-ui, sans-serif;
+  --hand: "Shantell Sans", cursive;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+
+  /* Mặt bàn giấy kraft — vân tạo bằng gradient, không dùng ảnh */
+  background-color: var(--kraft);
+  background-image:
+    repeating-linear-gradient(103deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(17deg, rgba(120, 90, 50, 0.045) 0 3px, transparent 3px 9px),
+    radial-gradient(ellipse at 20% 15%, rgba(255, 252, 240, 0.22), transparent 60%);
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
+h2,
+h3 {
   margin: 0;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* Ai dùng bàn phím phải luôn nhìn thấy mình đang ở đâu. Nét đứt cho hợp
+   chất bút vẽ tay của giao diện. */
+:focus-visible {
+  outline: 2px dashed var(--ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ───────── Khối dùng lại nhiều nơi ───────── */
+
+/* Tờ giấy: nền kem, bóng mềm sát mép, hơi xoay cho ra vẻ đặt tay */
+.sheet {
+  position: relative;
+  background: var(--paper);
+  box-shadow: var(--shadow-paper);
+  border-radius: 2px;
+}
+
+/* Trang vở kẻ dòng. Chữ chỉ nằm đúng trên dòng khi line-height bằng đúng
+   khoảng cách giữa hai dòng kẻ — nên khoá cả hai bằng một biến. */
+.ruled {
+  --rule-gap: 34px;
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--rule) 1px, transparent 1px);
+  background-size: 100% var(--rule-gap);
+  /* Dịch lớp kẻ xuống cho đường kẻ rơi ngay dưới chân chữ, không cắt ngang */
+  background-position: 0 calc(var(--rule-gap) - 9px);
+  line-height: var(--rule-gap);
+}
+
+/* Mọi thứ bên trong phải là bội số của một dòng, nếu không chữ sẽ trôi lệch
+   dần khỏi dòng kẻ càng xuống dưới càng rõ. */
+.ruled :where(p, h1, h2, h3, ul, ol) {
+  margin-block: 0;
+  line-height: var(--rule-gap);
+}
+.ruled :where(h1, h2, h3) {
+  margin-block-start: var(--rule-gap);
+}
+.ruled > :first-child {
+  margin-block-start: 0;
+}
+
+/* Lề đỏ dọc bên trái, như vở học sinh */
+.ruled--margin::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 46px;
+  width: 1.5px;
+  background: var(--margin-line);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.tape {
+  position: absolute;
+  width: 84px;
+  height: 26px;
+  background: var(--tape-rose);
+  opacity: 0.72;
+  box-shadow: 0 1px 2px rgba(60, 45, 20, 0.2);
+}
+.tape--sage {
+  background: var(--tape-sage);
+}
+
+.btn {
   display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1.5px solid var(--ink);
   border-radius: 4px;
-  color: var(--text-h);
+  background: var(--paper-dark);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 2px 2px 0 rgba(45, 63, 102, 0.22);
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+.btn:hover {
+  background: #f1e6c6;
+}
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+.btn--danger {
+  border-color: var(--brick);
+  color: var(--brick);
+  box-shadow: 2px 2px 0 rgba(162, 78, 61, 0.22);
+}
+.btn--primary {
+  background: var(--sticky-yellow);
+  border-color: var(--ink);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* Ô nhập: như điền vào chỗ trống trên giấy — chỉ có gạch chân */
+.field {
+  border: none;
+  border-bottom: 1.5px solid var(--ink-faint);
+  background: transparent;
+  padding: 4px 2px;
+  color: var(--ink);
+}
+.field:focus {
+  border-bottom-color: var(--ink);
+  outline: none;
 }
 
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+/* Chữ viết tay — chỉ dùng cho ghi chú cá nhân, không dùng cho dữ liệu.
+   Shantell Sans được chọn vì có bộ ký tự tiếng Việt đầy đủ; Caveat (bản
+   mockup dùng) thiếu nên trình duyệt phải thay thế từng ký tự có dấu,
+   làm nét chữ không đồng nhất. */
+.hand {
+  font-family: var(--hand);
+  font-size: 1.1em;
+  line-height: 1.35;
+  color: var(--ink-soft);
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+.muted {
+  color: var(--ink-soft);
+}
+.faint {
+  color: var(--ink-faint);
 }
 
-#app {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+/* Số liệu canh thẳng cột, không nhảy khi đổi giá trị */
+.num {
+  font-variant-numeric: tabular-nums;
 }
 
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
-}
-
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
   padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

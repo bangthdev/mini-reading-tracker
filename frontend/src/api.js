@@ -12,7 +12,10 @@ client.interceptors.response.use(
   (res) => res.data,
   (err) => {
     const payload = err.response?.data?.error
-    const normalised = new Error(payload?.message || 'Không kết nối được máy chủ')
+    // details[] mang câu cụ thể cho từng ô nhập ("cần ít nhất 3 ký tự"), còn
+    // message chỉ là câu tóm tắt ("Dữ liệu không hợp lệ"). Hiện câu cụ thể hơn.
+    const chiTiet = payload?.details?.[0]?.message
+    const normalised = new Error(chiTiet || payload?.message || 'Không kết nối được máy chủ')
     normalised.code = payload?.code || 'NETWORK_ERROR'
     normalised.details = payload?.details || []
     normalised.status = err.response?.status || 0
@@ -20,7 +23,8 @@ client.interceptors.response.use(
   },
 )
 
-export const searchBooks = (q, page = 1) => client.get('/books/search', { params: { q, page } })
+export const searchBooks = (q, page = 1, field = 'all') =>
+  client.get('/books/search', { params: { q, page, field } })
 
 export const getBook = (workId) => client.get(`/books/${workId}`)
 

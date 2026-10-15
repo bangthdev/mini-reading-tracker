@@ -36,6 +36,18 @@ router.post("/", async (req, res, next) => {
         message: `status phải là một trong ${STATUSES.join(", ")}`,
       });
     }
+    // Cột first_publish_year là SMALLINT: giá trị không phải số nguyên làm
+    // MySQL ném lỗi, thành 500 thay vì 400.
+    if (
+      firstPublishYear !== undefined &&
+      firstPublishYear !== null &&
+      !Number.isInteger(firstPublishYear)
+    ) {
+      errors.push({
+        field: "firstPublishYear",
+        message: "firstPublishYear phải là số nguyên (năm)",
+      });
+    }
     if (errors.length > 0) {
       throw new AppError(
         400,
@@ -45,23 +57,44 @@ router.post("/", async (req, res, next) => {
       );
     }
 
-    const finalStatus = status ?? "want_to_read";
-    const now = new Date();
-    const startedAt = finalStatus === "reading" ? now : null;
-    const finishedAt = finalStatus === "read" ? now : null;
+    // Sách mới vào tủ ở "muốn đọc", trang 0; trạng thái chọn sẵn thì để
+    // shelfRules suy ra. Chép lại luật ở đây thì thêm và sửa sẽ lệch nhau.
+    const sachMoi = {
+      status: "want_to_read",
+      current_page: 0,
+      total_pages: totalPages ?? null,
+      rating: null,
+      note: null,
+      started_at: null,
+      finished_at: null,
+    };
+    const { fields, errors: loiLuat } = applyChanges(
+      sachMoi,
+      status === undefined ? {} : { status },
+    );
+    if (loiLuat.length > 0) {
+      throw new AppError(
+        400,
+        "VALIDATION_ERROR",
+        "Dữ liệu không hợp lệ",
+        loiLuat,
+      );
+    }
+    const banGhi = { ...sachMoi, ...fields };
 
     const [result] = await pool.query(
-      `INSERT INTO shelf_books (work_key, title, author, cover_id, first_publish_year, total_pages, status, started_at, finished_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO shelf_books (work_key, title, author, cover_id, first_publish_year, total_pages, current_page, status, started_at, finished_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         workKey,
         title,
         author ?? null,
         coverId ?? null,
         firstPublishYear ?? null,
-        totalPages ?? null,
-        finalStatus,
-        startedAt,
-        finishedAt,
+        banGhi.total_pages,
+        banGhi.current_page,
+        banGhi.status,
+        banGhi.started_at,
+        banGhi.finished_at,
       ],
     );
 
