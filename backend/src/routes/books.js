@@ -5,11 +5,12 @@ const pool = require("../db/pool");
 
 const router = express.Router();
 
-// GET /api/books/search?q=&page= — tìm sách, gắn cờ inShelf cho từng kết quả
+// GET /api/books/search?q=&page=&field= — tìm sách, gắn cờ inShelf cho từng kết quả
 router.get("/search", async (req, res, next) => {
   try {
     const q = String(req.query.q || "").trim();
     const page = Number(req.query.page ?? 1);
+    const field = String(req.query.field ?? "all");
 
     const errors = [];
     if (q == "") {
@@ -24,6 +25,12 @@ router.get("/search", async (req, res, next) => {
         message: "Page phải là số nguyên lớn hơn 0",
       });
     }
+    if (!openLibrary.SEARCH_FIELDS_ALLOWED.includes(field)) {
+      errors.push({
+        field: "field",
+        message: `field phải là một trong ${openLibrary.SEARCH_FIELDS_ALLOWED.join(", ")}`,
+      });
+    }
     if (errors.length > 0) {
       throw new AppError(
         400,
@@ -33,7 +40,7 @@ router.get("/search", async (req, res, next) => {
       );
     }
 
-    const data = await openLibrary.searchBooks(q, page);
+    const data = await openLibrary.searchBooks(q, page, field);
     const books = data.docs.map((doc) => ({
       workKey: doc.key.replace("/works/", ""),
       title: doc.title,
