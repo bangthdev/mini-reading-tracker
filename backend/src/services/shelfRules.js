@@ -39,6 +39,10 @@ function applyChanges(book, changes) {
     errors.push({ field: 'currentPage', message: `Đã đọc xong thì số trang phải là ${nextTotal}` })
   }
 
+  if (status === 'want_to_read' && page !== undefined && page > 0) {
+    errors.push({ field: 'currentPage', message: 'Muốn đọc thì số trang phải là 0' })
+  }
+
   // Trạng thái chỉ được suy ra từ số trang khi request KHÔNG nói rõ trạng thái.
   // Nói rõ thì lời tuyên bố của người dùng thắng (xem quy tắc 10 bên dưới).
   if (status === undefined && page !== undefined) {
@@ -48,6 +52,12 @@ function applyChanges(book, changes) {
   // Quy tắc 10: đã đọc xong thì tiến độ phải là 100%, không để hiện 0%.
   if (nextStatus === 'read' && nextTotal != null) {
     nextPage = nextTotal
+  }
+
+  // Quy tắc 11, ngược với quy tắc 10. Giữ lại số trang cũ thì tủ hiện ra cuốn
+  // "chưa đọc" mà tiến độ 100%. Rating giữ nguyên: nó nói về cuốn sách.
+  if (nextStatus === 'want_to_read') {
+    nextPage = 0
   }
 
   const fields = {}
