@@ -101,9 +101,14 @@ router.get("/:workId", async (req, res, next) => {
     const authorIds = (work.authors || [])
       .map((a) => a.author?.key?.replace("/authors/", ""))
       .filter(Boolean);
-    const authors = await Promise.all(
-      authorIds.map((id) => openLibrary.getAuthor(id).catch(() => null)),
-    );
+    const [authors, totalPages] = await Promise.all([
+      Promise.all(
+        authorIds.map((id) => openLibrary.getAuthor(id).catch(() => null)),
+      ),
+      // Số trang chỉ để hiển thị; thiếu nó thì màn hình ghi "chưa rõ", không
+      // đáng để hỏng cả trang chi tiết.
+      openLibrary.getPageCount(workId).catch(() => null),
+    ]);
     const author =
       authors
         .filter(Boolean)
@@ -119,6 +124,7 @@ router.get("/:workId", async (req, res, next) => {
       coverId: work.covers?.[0] ?? null,
       subjects: work.subjects || [],
       firstPublishYear: nam(work.first_publish_date),
+      totalPages,
     });
   } catch (err) {
     next(err);
