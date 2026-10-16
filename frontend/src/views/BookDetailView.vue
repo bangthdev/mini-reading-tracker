@@ -101,8 +101,7 @@ const addedAs = ref(null)
 const addError = ref('')
 const showAll = ref(false)
 
-// Open Library không trả số trang ở endpoint chi tiết — Màn 1 truyền kèm qua URL.
-const totalPages = computed(() => Number(route.query.totalPages) || null)
+const totalPages = computed(() => book.value?.totalPages ?? null)
 
 // Mở thẳng đường dẫn này (tab mới, dán link) thì không có gì để quay về.
 const backTo = computed(() => {
