@@ -190,6 +190,21 @@ test('đổi mỗi trạng thái read sang reading thì không bị kéo ngượ
   assert.strictEqual(f.finished_at, null)
 })
 
+test('chặn số trang vô lý khi chưa biết tổng số trang', () => {
+  const r = applyChanges(book({ status: 'reading', total_pages: null }), { currentPage: 999999999999 })
+  assert.deepStrictEqual(errorFields(r), ['currentPage'], 'không có tổng để so thì vẫn phải có trần tuyệt đối')
+})
+
+test('chặn số trang vẫn nằm trong tầm INT nhưng vô lý', () => {
+  const r = applyChanges(book({ status: 'reading', total_pages: null }), { currentPage: 2000000000 })
+  assert.deepStrictEqual(errorFields(r), ['currentPage'])
+})
+
+test('nhận số trang lớn nhưng còn hợp lý khi chưa biết tổng', () => {
+  const f = fieldsOf(applyChanges(book({ status: 'reading', total_pages: null }), { currentPage: 4215 }))
+  assert.strictEqual(f.current_page, 4215, 'bộ sách dài thật thì vẫn phải nhập được')
+})
+
 // ───────────────────────── Quy tắc 10: đánh dấu read thì số trang nhảy lên đủ
 
 test('đánh dấu read khi mới đọc dở thì current_page nhảy lên bằng total_pages', () => {

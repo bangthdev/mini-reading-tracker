@@ -1,5 +1,11 @@
 const STATUSES = ['want_to_read', 'reading', 'read']
 
+// Khi chưa biết tổng số trang thì không có gì để so, nên cần một trần tuyệt
+// đối. Cuốn tiểu thuyết dài nhất từng in khoảng 4.200 trang, lấy 100.000 là
+// rộng gấp hơn hai mươi lần mà vẫn cách rất xa trần 2.147.483.647 của cột INT
+// — quá trần đó MySQL ném lỗi, biến một con số vô lý thành lỗi 500.
+const MAX_PAGES = 100000
+
 // Áp các quy tắc nghiệp vụ lên một bản ghi, trả về những cột cần UPDATE.
 // Hàm thuần: không chạm DB, không biết Express — nhận dữ liệu, trả dữ liệu.
 //
@@ -106,6 +112,10 @@ function readPage(changes, errors) {
     errors.push({ field: 'currentPage', message: 'Số trang đang đọc phải là số nguyên không âm' })
     return undefined
   }
+  if (value > MAX_PAGES) {
+    errors.push({ field: 'currentPage', message: `Số trang đang đọc không được vượt quá ${MAX_PAGES}` })
+    return undefined
+  }
   return value
 }
 
@@ -138,4 +148,4 @@ function timestampsFor(book, nextStatus) {
   return { started_at: null, finished_at: null }
 }
 
-module.exports = { applyChanges, STATUSES }
+module.exports = { applyChanges, STATUSES, MAX_PAGES }

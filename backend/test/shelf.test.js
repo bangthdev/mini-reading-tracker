@@ -104,3 +104,14 @@ test('an unknown endpoint answers in the shared error shape', withServer(async (
   assert.strictEqual(res.status, 404)
   assert.strictEqual(body.error.code, 'NOT_FOUND')
 }))
+
+test('POST /api/shelf rejects a page count no real book has', withServer(async (base) => {
+  const res = await post(base, { workKey: 'OL1W', title: 'Sách', totalPages: 999999999999 })
+  const body = await res.json()
+
+  assert.strictEqual(res.status, 400, 'quá tầm cột INT thì phải là 400, không phải 500')
+  assert.deepStrictEqual(
+    body.error.details.map((d) => d.field),
+    ['totalPages'],
+  )
+}))

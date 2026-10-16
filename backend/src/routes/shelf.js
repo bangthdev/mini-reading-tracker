@@ -1,7 +1,7 @@
 const express = require("express");
 const AppError = require("../errors/AppError");
 const pool = require("../db/pool");
-const { applyChanges } = require("../services/shelfRules");
+const { applyChanges, MAX_PAGES } = require("../services/shelfRules");
 
 const router = express.Router();
 
@@ -39,11 +39,11 @@ router.post("/", async (req, res, next) => {
     if (
       totalPages !== undefined &&
       totalPages !== null &&
-      (!Number.isInteger(totalPages) || totalPages < 1)
+      (!Number.isInteger(totalPages) || totalPages < 1 || totalPages > MAX_PAGES)
     ) {
       errors.push({
         field: "totalPages",
-        message: "totalPages phải là số nguyên lớn hơn 0",
+        message: `totalPages phải là số nguyên từ 1 đến ${MAX_PAGES}`,
       });
     }
     // Cột first_publish_year là SMALLINT: giá trị không phải số nguyên làm
