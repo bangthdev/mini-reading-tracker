@@ -36,6 +36,16 @@ router.post("/", async (req, res, next) => {
         message: `status phải là một trong ${STATUSES.join(", ")}`,
       });
     }
+    if (
+      totalPages !== undefined &&
+      totalPages !== null &&
+      (!Number.isInteger(totalPages) || totalPages < 1)
+    ) {
+      errors.push({
+        field: "totalPages",
+        message: "totalPages phải là số nguyên lớn hơn 0",
+      });
+    }
     // Cột first_publish_year là SMALLINT: giá trị không phải số nguyên làm
     // MySQL ném lỗi, thành 500 thay vì 400.
     if (
