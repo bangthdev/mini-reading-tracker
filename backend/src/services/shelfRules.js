@@ -43,21 +43,27 @@ function applyChanges(book, changes) {
     errors.push({ field: 'currentPage', message: 'Muốn đọc thì số trang phải là 0' })
   }
 
-  // Trạng thái chỉ được suy ra từ số trang khi request KHÔNG nói rõ trạng thái.
-  // Nói rõ thì lời tuyên bố của người dùng thắng (xem quy tắc 10 bên dưới).
   if (status === undefined && page !== undefined) {
     nextStatus = deriveStatus(book, nextPage, nextTotal)
+  }
+
+  // Quy tắc 11, ngược với quy tắc 10. Giữ lại số trang cũ thì tủ hiện ra cuốn
+  // "chưa đọc" mà tiến độ 100%. Rating giữ nguyên: nó nói về cuốn sách.
+  // Chạy trước quy tắc 3 để cuốn đang 444/444 lùi về "muốn đọc" được.
+  if (nextStatus === 'want_to_read') {
+    nextPage = 0
+  }
+
+  // Quy tắc 3: vừa nhập số trang chạm tới trang cuối là đã đọc xong, kể cả khi
+  // request nói rõ trạng thái khác. Chỉ xét khi request có gửi số trang — đổi
+  // mỗi trạng thái (đọc lại cuốn cũ) thì không phải là vừa đọc tới trang cuối.
+  if (page !== undefined && nextTotal != null && nextPage === nextTotal) {
+    nextStatus = 'read'
   }
 
   // Quy tắc 10: đã đọc xong thì tiến độ phải là 100%, không để hiện 0%.
   if (nextStatus === 'read' && nextTotal != null) {
     nextPage = nextTotal
-  }
-
-  // Quy tắc 11, ngược với quy tắc 10. Giữ lại số trang cũ thì tủ hiện ra cuốn
-  // "chưa đọc" mà tiến độ 100%. Rating giữ nguyên: nó nói về cuốn sách.
-  if (nextStatus === 'want_to_read') {
-    nextPage = 0
   }
 
   const fields = {}
