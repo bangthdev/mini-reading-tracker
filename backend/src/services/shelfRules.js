@@ -1,10 +1,14 @@
 const STATUSES = ['want_to_read', 'reading', 'read']
 
 // Khi chưa biết tổng số trang thì không có gì để so, nên cần một trần tuyệt
-// đối. Cuốn tiểu thuyết dài nhất từng in khoảng 4.200 trang, lấy 100.000 là
-// rộng gấp hơn hai mươi lần mà vẫn cách rất xa trần 2.147.483.647 của cột INT
-// — quá trần đó MySQL ném lỗi, biến một con số vô lý thành lỗi 500.
-const MAX_PAGES = 100000
+// đối. Cuốn dày nhất trong dữ liệu mẫu là The Lord of the Rings 1.193 trang,
+// nên 10.000 còn rộng gấp tám lần mà vẫn chặn được số gõ nhầm. Trần cũng phải
+// nằm dưới 2.147.483.647 của cột INT — quá đó MySQL ném lỗi thành 500.
+const MAX_PAGES = 10000
+
+// Cột note là TEXT, chứa tối đa 65.535 byte — dài hơn là MySQL ném lỗi thành
+// 500. Đề yêu cầu "ghi chú ngắn", nên chặn sớm ở mức người dùng còn đọc nổi.
+const MAX_NOTE = 2000
 
 // Áp các quy tắc nghiệp vụ lên một bản ghi, trả về những cột cần UPDATE.
 // Hàm thuần: không chạm DB, không biết Express — nhận dữ liệu, trả dữ liệu.
@@ -15,6 +19,7 @@ function applyChanges(book, changes) {
   const errors = []
 
   const rating = readRating(changes, errors)
+  const note = readNote(changes, errors)
   const status = readStatus(changes, errors)
   const page = readPage(changes, errors)
 
@@ -74,7 +79,7 @@ function applyChanges(book, changes) {
 
   const fields = {}
   if ('rating' in changes) fields.rating = rating
-  if ('note' in changes) fields.note = changes.note
+  if ('note' in changes) fields.note = note
   if (nextPage !== book.current_page) fields.current_page = nextPage
   if (nextTotal !== book.total_pages) fields.total_pages = nextTotal
   if (nextStatus !== book.status) {
@@ -91,6 +96,21 @@ function readRating(changes, errors) {
   if (value === null) return null
   if (!Number.isInteger(value) || value < 1 || value > 5) {
     errors.push({ field: 'rating', message: 'Đánh giá phải là số nguyên từ 1 đến 5, hoặc để trống' })
+    return undefined
+  }
+  return value
+}
+
+function readNote(changes, errors) {
+  if (!('note' in changes)) return undefined
+  const value = changes.note
+  if (value === null) return null
+  if (typeof value !== 'string') {
+    errors.push({ field: 'note', message: 'Ghi chú phải là chuỗi, hoặc để trống' })
+    return undefined
+  }
+  if (value.length > MAX_NOTE) {
+    errors.push({ field: 'note', message: `Ghi chú không được dài quá ${MAX_NOTE} ký tự` })
     return undefined
   }
   return value

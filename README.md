@@ -139,17 +139,18 @@ Body không phải JSON hợp lệ trả **400 `INVALID_JSON`**, và endpoint kh
 ## Quy tắc nghiệp vụ
 
 1. Không thêm trùng sách — ràng buộc `UNIQUE` trên `work_key`, API trả **409**.
-2. `0 ≤ current_page ≤ total_pages` (khi biết tổng số trang), và luôn ≤ 100.000
+2. `0 ≤ current_page ≤ total_pages` (khi biết tổng số trang), và luôn ≤ 10.000
    kể cả khi chưa biết tổng.
-3. `rating` là số nguyên 1–5 hoặc để trống.
-4. Cập nhật `current_page` chạm tới `total_pages` → tự chuyển sang *Đã đọc*,
+3. `note` phải là chuỗi, tối đa 2.000 ký tự.
+4. `rating` là số nguyên 1–5 hoặc để trống.
+5. Cập nhật `current_page` chạm tới `total_pages` → tự chuyển sang *Đã đọc*,
    kể cả khi request nói rõ một trạng thái khác. Chỉ đổi mỗi trạng thái
    (đọc lại cuốn cũ) thì không tính, vì không phải vừa đọc tới trang cuối.
-5. Chuyển sang *Đang đọc* lần đầu → ghi `started_at`; chuyển sang *Đã đọc* → ghi `finished_at`.
-6. Lùi về *Muốn đọc* → `current_page` về 0 và xoá cả hai mốc; `rating` giữ
+6. Chuyển sang *Đang đọc* lần đầu → ghi `started_at`; chuyển sang *Đã đọc* → ghi `finished_at`.
+7. Lùi về *Muốn đọc* → `current_page` về 0 và xoá cả hai mốc; `rating` giữ
    nguyên vì nó nói về cuốn sách, không phải tiến độ.
-7. Đánh giá được cho sách ở mọi trạng thái, không chỉ sách đã đọc xong.
-8. Toàn bộ validate nằm ở backend.
+8. Đánh giá được cho sách ở mọi trạng thái, không chỉ sách đã đọc xong.
+9. Toàn bộ validate nằm ở backend.
 
 ## Deploy
 
@@ -255,11 +256,12 @@ Riêng số trang kéo theo một hệ quả: khi Open Library không có, ứng
 trang người dùng nhập lúc đánh dấu "Đã đọc" làm tổng. Gõ nhầm thì cuốn đó mang
 tổng sai, mà màn hình chỉ cho sửa *số trang đang đọc* — phải xoá đi thêm lại.
 
-**Số trang chặn cứng ở 100.000.** Khi không biết tổng số trang thì không có gì
-để đối chiếu, nên phải có một trần tuyệt đối. Trần này bắt buộc phải nằm dưới
-giới hạn của cột `INT` là 2.147.483.647 — vượt qua đó thì MySQL ném lỗi, biến
-một con số gõ nhầm của người dùng thành lỗi 500. Chọn 100.000 vì nó rộng hơn
-mọi đầu sách in thực tế nhiều lần mà vẫn chặn được những con số rõ ràng là nhầm.
+**Số trang chặn cứng ở 10.000.** Khi không biết tổng số trang thì không có gì
+để đối chiếu, nên phải có một trần tuyệt đối. Trần bắt buộc nằm dưới giới hạn
+của cột `INT` là 2.147.483.647 — vượt qua đó thì MySQL ném lỗi, biến một con số
+gõ nhầm của người dùng thành lỗi 500. Chọn 10.000 vì cuốn dày nhất trong dữ
+liệu mẫu là *The Lord of the Rings* 1.193 trang, nên trần vẫn rộng gấp tám lần
+mà chặn được số gõ nhầm.
 
 **Tìm một ký tự ở phạm vi "Tất cả" có thể lỗi.** Lỗi đến từ Open Library chứ
 không phải ứng dụng — gọi thẳng API của họ cũng trả 500. Màn hình hiện khối báo

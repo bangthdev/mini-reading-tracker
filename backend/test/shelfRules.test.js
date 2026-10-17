@@ -196,13 +196,31 @@ test('chặn số trang vô lý khi chưa biết tổng số trang', () => {
 })
 
 test('chặn số trang vẫn nằm trong tầm INT nhưng vô lý', () => {
-  const r = applyChanges(book({ status: 'reading', total_pages: null }), { currentPage: 2000000000 })
+  const r = applyChanges(book({ status: 'reading', total_pages: null }), { currentPage: 2000000 })
   assert.deepStrictEqual(errorFields(r), ['currentPage'])
 })
 
 test('nhận số trang lớn nhưng còn hợp lý khi chưa biết tổng', () => {
   const f = fieldsOf(applyChanges(book({ status: 'reading', total_pages: null }), { currentPage: 4215 }))
   assert.strictEqual(f.current_page, 4215, 'bộ sách dài thật thì vẫn phải nhập được')
+})
+
+test('từ chối note không phải chuỗi', () => {
+  for (const bad of [{ a: 1 }, [1, 2], 42, true]) {
+    const r = applyChanges(book(), { note: bad })
+    assert.deepStrictEqual(errorFields(r), ['note'], `note = ${JSON.stringify(bad)} phải bị chặn`)
+  }
+})
+
+test('từ chối note dài quá mức cột TEXT chịu được', () => {
+  const r = applyChanges(book(), { note: 'x'.repeat(70000) })
+  assert.deepStrictEqual(errorFields(r), ['note'], 'dài hơn 65.535 byte thì MySQL ném lỗi thành 500')
+})
+
+test('nhận note là chuỗi, kể cả rỗng và null', () => {
+  assert.strictEqual(fieldsOf(applyChanges(book(), { note: 'đọc chậm' })).note, 'đọc chậm')
+  assert.strictEqual(fieldsOf(applyChanges(book(), { note: '' })).note, '')
+  assert.strictEqual(fieldsOf(applyChanges(book(), { note: null })).note, null)
 })
 
 // ───────────────────────── Quy tắc 10: đánh dấu read thì số trang nhảy lên đủ

@@ -55,6 +55,11 @@
 
           <p v-if="added" class="done hand">Đã thêm vào tủ với trạng thái “{{ STATUS_LABEL[addedAs] }}”.</p>
 
+          <p v-else-if="book.inShelf" class="done hand">
+            Cuốn này đã có trong tủ.
+            <RouterLink to="/shelf">Mở tủ sách →</RouterLink>
+          </p>
+
           <div v-else class="choices">
             <button
               v-for="s in STATUSES"

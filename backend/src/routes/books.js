@@ -101,13 +101,20 @@ router.get("/:workId", async (req, res, next) => {
     const authorIds = (work.authors || [])
       .map((a) => a.author?.key?.replace("/authors/", ""))
       .filter(Boolean);
-    const [authors, totalPages] = await Promise.all([
+    // workId trong URL có thể là bản ghi chuyển hướng; khoá thật nằm ở work.key
+    // sau khi đã đi theo redirect, nên tra tủ sách bằng khoá đó.
+    const realKey = work.key.replace("/works/", "");
+
+    const [authors, totalPages, shelfRows] = await Promise.all([
       Promise.all(
         authorIds.map((id) => openLibrary.getAuthor(id).catch(() => null)),
       ),
       // Số trang chỉ để hiển thị; thiếu nó thì màn hình ghi "chưa rõ", không
       // đáng để hỏng cả trang chi tiết.
       openLibrary.getPageCount(workId).catch(() => null),
+      pool.query("SELECT 1 FROM shelf_books WHERE work_key = ? LIMIT 1", [
+        realKey,
+      ]),
     ]);
     const author =
       authors
@@ -125,6 +132,7 @@ router.get("/:workId", async (req, res, next) => {
       subjects: work.subjects || [],
       firstPublishYear: nam(work.first_publish_date),
       totalPages,
+      inShelf: shelfRows[0].length > 0,
     });
   } catch (err) {
     next(err);
