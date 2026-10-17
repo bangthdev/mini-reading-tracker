@@ -67,3 +67,51 @@ test('DELETE /api/shelf/:id rejects a non-positive-integer id', withServer(async
     assert.strictEqual(body.error.details[0].field, 'id')
   }
 }))
+
+test('POST /api/shelf rejects a negative totalPages', withServer(async (base) => {
+  const res = await post(base, { workKey: 'OL1W', title: 'Sách', totalPages: -5 })
+  const body = await res.json()
+
+  assert.strictEqual(res.status, 400)
+  assert.deepStrictEqual(
+    body.error.details.map((d) => d.field),
+    ['totalPages'],
+  )
+}))
+
+test('POST /api/shelf rejects a zero totalPages', withServer(async (base) => {
+  const res = await post(base, { workKey: 'OL1W', title: 'Sách', totalPages: 0 })
+
+  assert.strictEqual(res.status, 400)
+}))
+
+test('a body that is not JSON is the caller mistake, not a server error', withServer(async (base) => {
+  const res = await fetch(`${base}/api/shelf`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{"workKey":',
+  })
+  const body = await res.json()
+
+  assert.strictEqual(res.status, 400)
+  assert.strictEqual(body.error.code, 'INVALID_JSON')
+}))
+
+test('an unknown endpoint answers in the shared error shape', withServer(async (base) => {
+  const res = await fetch(`${base}/api/khong-co-that`)
+  const body = await res.json()
+
+  assert.strictEqual(res.status, 404)
+  assert.strictEqual(body.error.code, 'NOT_FOUND')
+}))
+
+test('POST /api/shelf rejects a page count no real book has', withServer(async (base) => {
+  const res = await post(base, { workKey: 'OL1W', title: 'Sách', totalPages: 999999999999 })
+  const body = await res.json()
+
+  assert.strictEqual(res.status, 400, 'quá tầm cột INT thì phải là 400, không phải 500')
+  assert.deepStrictEqual(
+    body.error.details.map((d) => d.field),
+    ['totalPages'],
+  )
+}))

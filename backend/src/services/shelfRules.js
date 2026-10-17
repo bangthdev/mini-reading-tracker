@@ -1,5 +1,11 @@
 const STATUSES = ['want_to_read', 'reading', 'read']
 
+// Khi chưa biết tổng số trang thì không có gì để so, nên cần một trần tuyệt
+// đối. Cuốn tiểu thuyết dài nhất từng in khoảng 4.200 trang, lấy 100.000 là
+// rộng gấp hơn hai mươi lần mà vẫn cách rất xa trần 2.147.483.647 của cột INT
+// — quá trần đó MySQL ném lỗi, biến một con số vô lý thành lỗi 500.
+const MAX_PAGES = 100000
+
 // Áp các quy tắc nghiệp vụ lên một bản ghi, trả về những cột cần UPDATE.
 // Hàm thuần: không chạm DB, không biết Express — nhận dữ liệu, trả dữ liệu.
 //
@@ -43,21 +49,27 @@ function applyChanges(book, changes) {
     errors.push({ field: 'currentPage', message: 'Muốn đọc thì số trang phải là 0' })
   }
 
-  // Trạng thái chỉ được suy ra từ số trang khi request KHÔNG nói rõ trạng thái.
-  // Nói rõ thì lời tuyên bố của người dùng thắng (xem quy tắc 10 bên dưới).
   if (status === undefined && page !== undefined) {
     nextStatus = deriveStatus(book, nextPage, nextTotal)
+  }
+
+  // Quy tắc 11, ngược với quy tắc 10. Giữ lại số trang cũ thì tủ hiện ra cuốn
+  // "chưa đọc" mà tiến độ 100%. Rating giữ nguyên: nó nói về cuốn sách.
+  // Chạy trước quy tắc 3 để cuốn đang 444/444 lùi về "muốn đọc" được.
+  if (nextStatus === 'want_to_read') {
+    nextPage = 0
+  }
+
+  // Quy tắc 3: vừa nhập số trang chạm tới trang cuối là đã đọc xong, kể cả khi
+  // request nói rõ trạng thái khác. Chỉ xét khi request có gửi số trang — đổi
+  // mỗi trạng thái (đọc lại cuốn cũ) thì không phải là vừa đọc tới trang cuối.
+  if (page !== undefined && nextTotal != null && nextPage === nextTotal) {
+    nextStatus = 'read'
   }
 
   // Quy tắc 10: đã đọc xong thì tiến độ phải là 100%, không để hiện 0%.
   if (nextStatus === 'read' && nextTotal != null) {
     nextPage = nextTotal
-  }
-
-  // Quy tắc 11, ngược với quy tắc 10. Giữ lại số trang cũ thì tủ hiện ra cuốn
-  // "chưa đọc" mà tiến độ 100%. Rating giữ nguyên: nó nói về cuốn sách.
-  if (nextStatus === 'want_to_read') {
-    nextPage = 0
   }
 
   const fields = {}
@@ -100,6 +112,10 @@ function readPage(changes, errors) {
     errors.push({ field: 'currentPage', message: 'Số trang đang đọc phải là số nguyên không âm' })
     return undefined
   }
+  if (value > MAX_PAGES) {
+    errors.push({ field: 'currentPage', message: `Số trang đang đọc không được vượt quá ${MAX_PAGES}` })
+    return undefined
+  }
   return value
 }
 
@@ -132,4 +148,4 @@ function timestampsFor(book, nextStatus) {
   return { started_at: null, finished_at: null }
 }
 
-module.exports = { applyChanges, STATUSES }
+module.exports = { applyChanges, STATUSES, MAX_PAGES }

@@ -102,4 +102,17 @@ async function fetchCover(coverId, size = 'M') {
   }
 }
 
-module.exports = { searchBooks, getWork, getAuthor, fetchCover, SEARCH_FIELDS_ALLOWED }
+// works/{id}.json không có số trang, chỉ bộ tìm kiếm mới có
+// number_of_pages_median. Hỏi thẳng theo work key để Màn 2 tự lấy được, không
+// phải trông chờ bên gọi truyền kèm qua URL.
+async function getPageCount(workId) {
+  const params = new URLSearchParams({
+    q: `key:/works/${workId}`,
+    fields: 'number_of_pages_median',
+    limit: '1',
+  })
+  const data = await fetchJson(`${BASE_URL}/search.json?${params}`)
+  return data.docs?.[0]?.number_of_pages_median ?? null
+}
+
+module.exports = { searchBooks, getWork, getAuthor, getPageCount, fetchCover, SEARCH_FIELDS_ALLOWED }

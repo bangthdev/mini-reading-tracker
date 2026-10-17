@@ -232,7 +232,6 @@ function linkTo(book) {
   return {
     path: `/books/${book.workKey}`,
     query: {
-      totalPages: book.totalPages ?? "",
       q: route.query.q,
       page: route.query.page,
       field: route.query.field ?? "all",

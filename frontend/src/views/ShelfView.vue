@@ -133,7 +133,7 @@
         <!-- Chế độ xem -->
         <template v-if="editing !== b.id">
           <StarRating
-            v-if="b.status === 'read'"
+            v-if="b.rating != null"
             :model-value="b.rating"
             readonly
             label="Đánh giá đã chấm"
@@ -197,11 +197,7 @@
             </select>
           </label>
 
-          <!-- Chấm sao cho sách chưa đọc xong thì không có ý nghĩa gì -->
-          <label
-            v-if="form.status === 'read'"
-            class="row"
-          >
+          <label class="row">
             <span>Đánh giá</span>
             <StarRating v-model="form.rating" />
           </label>
@@ -291,12 +287,11 @@ const pending = ref(null);
 
 const shown = computed(() => books.value.filter((b) => b.status === tab.value));
 
-// Endpoint chi tiết không trả số trang nên phải truyền kèm.
 // from=shelf để nút quay lại bên đó trả về tủ.
 function detailLink(book) {
   return {
     path: `/books/${book.work_key}`,
-    query: { totalPages: book.total_pages ?? "", from: "shelf" },
+    query: { from: "shelf" },
   };
 }
 
